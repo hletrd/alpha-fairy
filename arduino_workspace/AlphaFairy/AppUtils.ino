@@ -228,7 +228,7 @@ int file_readLine(File* f, char* tgt, int charlimit)
     while (f->available() > 0) // until end of file
     {
         char c = f->read();
-        
+
         if (c != '\r' && c != '\n' && c != '\0') // is not terminator
         {
             if (i < charlimit - 1) // if there is room in string buffer
@@ -271,7 +271,7 @@ void dissolve_restart(uint16_t colour)
         {
             M5Lcd.fillRect(x, y, 1, 1, TFT_BLACK);
             int32_t b = config_settings.lcd_brightness - (((millis() - t) - 5000) / 1250);
-            M5.Axp.ScreenBreath(b);
+            StickCP2.Display.setBrightness(b);
         }
     }
     ESP.restart();

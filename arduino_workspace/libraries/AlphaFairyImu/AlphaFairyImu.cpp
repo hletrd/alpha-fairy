@@ -1,7 +1,7 @@
 #include "AlphaFairyImu.h"
 #include <Wire.h>
 #include <Arduino.h>
-#include <M5StickCPlus.h>
+#include <M5StickCPlus2.h>
 
 #include <math.h>
 

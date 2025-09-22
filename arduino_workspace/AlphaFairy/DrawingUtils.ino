@@ -311,7 +311,7 @@ void gui_showVal(int32_t x, uint32_t txtfmt, Print* printer)
     }
 
     if (txtfmt_masked == TXTFMT_LCDBRITE) {
-        M5.Axp.ScreenBreath(x);
+        StickCP2.Display.setBrightness(x);
     }
 
     if (printer != NULL) {

@@ -2,7 +2,7 @@
 #define _FAIRYKEYBOARD_H_
 
 #include <Arduino.h>
-#include <M5StickCPlus.h>
+#include <M5StickCPlus2.h>
 #include <M5Display.h>
 
 #include <stdint.h>

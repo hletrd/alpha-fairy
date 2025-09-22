@@ -1,5 +1,5 @@
 #include "AlphaFairy.h"
-#include <M5StickCPlus.h>
+#include <M5StickCPlus2.h>
 #include <M5DisplayExt.h>
 
 #include "esp_pm.h"
@@ -43,59 +43,23 @@ void gui_drawStatusBar(bool is_black)
         // only do once in a while, these are I2C transactions, could cause slowdowns
         // I'll admit that file reading, decoding, and LCD transactions are also very slow
         batt_last_time = now;
-        if (li == 0 || batt_vbus < 0) {
-            batt_vbus  = M5.Axp.GetVBusVoltage();
-        }
         if (li == 1 || batt_vbatt < 0) {
-            batt_vbatt = M5.Axp.GetBatVoltage();
+            batt_vbatt = StickCP2.Power.getBatteryVoltage() / 1000.0f;
         }
         if (li == 2 || batt_ibatt < 0) {
-            batt_ibatt = M5.Axp.GetBatCurrent();
+            batt_ibatt = StickCP2.Power.getBatteryCurrent() / 1000.0f;
         }
         li = (li + 1) % 3;
 
-        // the PMIC gives us a lot of data to use
-        if (batt_vbus > 3) // check if USB power is available
-        {
+        if (StickCP2.Power.isCharging() && StickCP2.Power.getBatteryLevel() < 20) {
+            batt_status = BATTSTAT_CHARGING_LOW;
+        } else if (StickCP2.Power.isCharging()) {
             batt_status = BATTSTAT_CHARGING;
-            if (batt_vbatt > 4.1 && batt_ibatt >= 0)
-            {
-                // high vbatt and no in-flow current means battery is full
-                // but there's a case when there's a constant trickle into the battery that never stops (I don't know why)
-                // so we track what the maximum in-flow current is and see if it drops
-                batt_ibatt_max = (batt_ibatt > batt_ibatt_max) ? batt_ibatt : batt_ibatt_max;
-
-                if (batt_ibatt <= 20) {
-                    batt_status = BATTSTAT_FULL;
-                }
-                else {
-                    if (batt_ibatt < (batt_ibatt_max * 0.8)) {
-                        batt_status = BATTSTAT_FULL;
-                    }
-                }
-            }
-            else if (batt_vbatt < 3.7) {
-                batt_status = BATTSTAT_CHARGING_LOW;
-            }
-        }
-        else
-        {
-            // not charging, check if battery is low
-
-            if (batt_status == BATTSTAT_LOW) {
-                // already low, see if it magically recharged itself
-                if (batt_vbatt > 3.6) {
-                    batt_status = BATTSTAT_NONE;
-                }
-            }
-            else {
-                // just became low
-                if (batt_vbatt < 3.5) {
-                    batt_status = BATTSTAT_LOW;
-                }
-                else if (batt_vbatt < 4.1) {
-                    batt_status = BATTSTAT_NONE;
-                }
+        } else {
+            if (StickCP2.Power.getBatteryLevel() < 20) {
+                batt_status = BATTSTAT_LOW;
+            } else {
+                batt_status = BATTSTAT_FULL;
             }
         }
     }
@@ -199,7 +163,7 @@ void gui_prepStatusBarText(int16_t x, int16_t y, bool is_black)
 void pwr_lcdUndim()
 {
     if (lcd_backlight_dim) {
-        M5.Axp.ScreenBreath(config_settings.lcd_brightness);
+        StickCP2.Display.setBrightness(config_settings.lcd_brightness);
         lcd_backlight_dim = false;
     }
 }
@@ -214,7 +178,7 @@ void pwr_sleepCheck()
         {
             // time to dim the LCD backlight
             if (lcd_backlight_dim == false) {
-                M5.Axp.ScreenBreath(7);
+                StickCP2.Display.setBrightness(7);
                 lcd_backlight_dim = true;
             }
         }
@@ -261,7 +225,7 @@ void pwr_dimCheck()
         {
             // time to dim the LCD backlight
             if (lcd_backlight_dim == false) {
-                M5.Axp.ScreenBreath(7);
+                StickCP2.Display.setBrightness(7);
                 lcd_backlight_dim = true;
             }
         }
@@ -481,7 +445,7 @@ void show_poweroff()
                 uint32_t d = millis() - t;
                 if (d > 800) {
                     t = millis();
-                    M5.Axp.ScreenBreath(b);
+                    StickCP2.Display.setBrightness(b);
                     b -= 1;
                     if (b < 5) {
                         break;
@@ -503,7 +467,7 @@ void show_poweroff()
             uint32_t d = millis() - t;
             if (d > 800) {
                 t = millis();
-                M5.Axp.ScreenBreath(b);
+                StickCP2.Display.setBrightness(b);
                 b -= 1;
                 if (b < 5) {
                     break;

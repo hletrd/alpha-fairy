@@ -185,11 +185,10 @@ void mic_func(void* cmd, char* argstr, Stream* stream)
 void pwr_func(void* cmd, char* argstr, Stream* stream)
 {
   pwr_tick(true);
-  stream->printf("pwr:   %0.3f   %0.3f   %0.3f   %0.3f\r\n",
-    M5.Axp.GetBatVoltage(),
-    M5.Axp.GetBatCurrent(),
-    M5.Axp.GetVBusVoltage(),
-    M5.Axp.GetVBusCurrent()
+  stream->printf("pwr:   %0.3f   %0.3f   %d\r\n",
+    StickCP2.Power.getBatteryVoltage() / 1000.0f,
+    StickCP2.Power.getBatteryCurrent() / 1000.0f,
+    StickCP2.Power.getBatteryLevel()
     );
 }
 

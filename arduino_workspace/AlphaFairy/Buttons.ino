@@ -9,6 +9,7 @@ a simple debounce algorithm is used
 
 #define PIN_BTN_SIDE     39
 #define PIN_BTN_BIG      37
+#define PIN_BTN_PWR      35
 #define GPIO_BTN_SIDE    GPIO_NUM_39
 #define GPIO_BTN_BIG     GPIO_NUM_37
 
@@ -32,7 +33,7 @@ extern void pwr_lcdUndim(void);
 void IRAM_ATTR btnSide_isr()
 {
     if (digitalRead(PIN_BTN_SIDE) != LOW) {
-        // guard against ESP32 hardware bug 
+        // guard against ESP32 hardware bug
         // https://github.com/espressif/arduino-esp32/issues/5055
         // https://github.com/espressif/esp-idf/commit/d890a516a1097f0a07788e203fdb1a82bb83520e
         return;
@@ -53,7 +54,7 @@ void IRAM_ATTR btnSide_isr()
 void IRAM_ATTR btnBig_isr()
 {
     if (digitalRead(PIN_BTN_BIG) != LOW) {
-        // guard against ESP32 hardware bug 
+        // guard against ESP32 hardware bug
         // https://github.com/espressif/arduino-esp32/issues/5055
         // https://github.com/espressif/esp-idf/commit/d890a516a1097f0a07788e203fdb1a82bb83520e
         return;
@@ -228,7 +229,6 @@ bool btnAny_hasPressed() {
     x |= btnSide_hasPressed();
     x |= btnBig_hasPressed();
     x |= btnPwr_hasPressed();
-    x |= M5.Axp.GetBtnPress() != 0;
     return x;
 }
 
@@ -250,7 +250,7 @@ void btnPwr_poll()
 
 void btnPwr_quickPoll()
 {
-    uint8_t b = M5.Axp.GetBtnPress();
+    uint8_t b = digitalRead(PIN_BTN_PWR);
     if (b != 0) {
         btnPwr_cnt++;
         dbg_ser.printf("user pressed power button\r\n");

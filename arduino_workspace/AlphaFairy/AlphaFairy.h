@@ -8,7 +8,7 @@
 #include "alfy_types.h"
 #include "alfy_defs.h"
 
-#include <M5StickCPlus.h>
+#include <M5StickCPlus2.h>
 #include <M5DisplayExt.h>
 #include <SpriteMgr.h>
 #include <FS.h>

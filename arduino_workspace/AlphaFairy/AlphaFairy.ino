@@ -1,5 +1,5 @@
 #include "AlphaFairy.h"
-#include <M5StickCPlus.h>
+#include <M5StickCPlus2.h>
 #include <M5DisplayExt.h>
 #include <SpriteMgr.h>
 #include "FairyMenu.h"
@@ -60,11 +60,13 @@ void setup()
     M5.IMU.SetGyroFsr(M5.IMU.GFS_500DPS);
     M5.IMU.SetAccelFsr(M5.IMU.AFS_4G);
 
-    M5.Axp.begin();
-    M5.Axp.ScreenSwitch(false); // turn off the LCD backlight while initializing, avoids junk being shown on the screen
+    //M5.Axp.begin();
+    //M5.Axp.ScreenSwitch(false); // turn off the LCD backlight while initializing, avoids junk being shown on the screen
     M5Lcd.begin(); // our own extended LCD object
     M5Lcd.fillScreen(TFT_BLACK);
-    M5.Axp.ScreenBreath(config_settings.lcd_brightness);
+    //M5.Axp.ScreenBreath(config_settings.lcd_brightness);
+    StickCP2.begin();
+    StickCP2.setBrightness(config_settings.lcd_brightness);
 
     spiffs_init();
 
@@ -228,7 +230,6 @@ void critical_error(const char* fp)
 
     cpufreq_boost();
     pwr_tick(true);
-    M5.Axp.GetBtnPress(); // clear the button bit
     uint32_t t = millis(), now = t;
 
     // disconnect
@@ -259,10 +260,9 @@ void critical_error(const char* fp)
             ESP.restart();
         }
 
-        // shutdown on power button press
-        if (M5.Axp.GetBtnPress() != 0) {
+        if (StickCP2.BtnC.wasPressed()) {
             show_poweroff();
-            M5.Axp.PowerOff();
+            StickCP2.Power.timerSleep(2);
         }
 
         // if debugging over serial port, or allow the user to plug it in now, repeat the message
@@ -416,8 +416,8 @@ void spiffs_init(void)
             else if (fail == 2) {
                 Serial.println("Image files are missing");
             }
-            if (M5.Axp.GetBtnPress() != 0) {
-                pwr_shutdown();
+            if (digitalRead(PIN_BTN_PWR) != 0) {
+                StickCP2.Power.timerSleep(2);
             }
             delay(100);
         }

@@ -584,7 +584,7 @@ void lepton_updateFlir(bool gui)
     if (gui) {
         //Setting info
         lepton_imgBuff->setTextDatum(TC_DATUM);
-        float bat_voltage = M5.Axp.GetBatVoltage();
+        float bat_voltage = StickCP2.power.getBatteryVoltage() / 1000.0f;
         lepton_dispBatt(214, 4, bat_voltage);
     }
 
